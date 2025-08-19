@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card-hover {
+            transition: all 0.2s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div id="app" class="container mx-auto px-4 py-8">
+        <!-- Navbar -->
+        <nav class="bg-white shadow-lg rounded-lg mb-8">
+            <div class="max-w-6xl mx-auto px-4">
+                <div class="flex justify-between items-center py-4">
+                    <div>
+                        <span class="text-2xl font-bold text-blue-600">JobPortal</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button onclick="showPage('home')" class="px-4 py-2 text-gray-700 hover:text-blue-600">Home</button>
+                        <button onclick="showPage('jobs')" class="px-4 py-2 text-gray-700 hover:text-blue-600">Jobs</button>
+                        <button onclick="showPage('applications')" class="px-4 py-2 text-gray-700 hover:text-blue-600">My Applications</button>
+                        <button onclick="toggleAuthModal()" id="authButton" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Login</button>
+                        <button onclick="showPage('admin')" id="adminButton" class="hidden px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">Admin Panel</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div id="content">
+            <!-- Home page -->
+            <div id="home-page" class="fade-in">
+                <section class="py-12">
+                    <div class="container mx-auto px-6">
+                        <div class="flex flex-col md:flex-row items-center">
+                            <div class="md:w-1/2 flex justify-center mb-8 md:mb-0">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/74b3f11b-0d5e-468d-958b-760fa2aa2c8a.png" alt="Diverse group of professionals working together in a modern office space with laptops and whiteboards" class="rounded-lg shadow-xl">
+                            </div>
+                            <div class="md:w-1/2 md:pl-12">
+                                <h1 class="text-4xl font-bold text-gray-800 mb-6">Find Your Dream Job Today</h1>
+                                <p class="text-gray-600 mb-8 text-lg">We connect talented professionals with the best companies. Browse thousands of job listings and find the perfect fit for your skills and experience.</p>
+                                <div class="flex space-x-4">
+                                    <button onclick="showPage('jobs')" class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">Browse Jobs</button>
+                                    <button onclick="toggleAuthModal(true)" class="px-6 py-3 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition">Post a Job</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="py-12 bg-gray-100">
+                    <div class="container mx-auto px-6">
+                        <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">How It Works</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                                <div class="text-blue-600 text-4xl mb-4">1</div>
+                                <h3 class="text-xl font-semibold mb-2">Create Profile</h3>
+                                <p class="text-gray-600">Sign up and create your professional profile to get started.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                                <div class="text-blue-600 text-4xl mb-4">2</div>
+                                <h3 class="text-xl font-semibold mb-2">Find Jobs</h3>
+                                <p class="text-gray-600">Browse and search through our extensive job listings.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                                <div class="text-blue-600 text-4xl mb-4">3</div>
+                                <h3 class="text-xl font-semibold mb-2">Get Hired</h3>
+                                <p class="text-gray-600">Apply with one click and get connected with employers.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Jobs page -->
+            <div id="jobs-page" class="hidden fade-in">
+                <div class="flex justify-between items-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800">Available Jobs</h1>
+                    <div class="flex space-x-2">
+                        <input type="text" id="jobSearch" placeholder="Search jobs..." class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button onclick="fetchJobs()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Search</button>
+                        <button onclick="toggleJobFilter()" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100">Filters</button>
+                    </div>
+                </div>
+
+                <div id="jobFilter" class="hidden mb-6 p-4 bg-white rounded-lg shadow-sm border">
+                    <h3 class="text-lg font-semibold mb-4">Filter Jobs</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Job Type</label>
+                            <select id="filterType" class="w-full border rounded-md p-2">
+                                <option value="">All Types</option>
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Internship">Internship</option>
+                                <option value="Remote">Remote</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                            <select id="filterLocation" class="w-full border rounded-md p-2">
+                                <option value="">All Locations</option>
+                                <option value="New York">New York</option>
+                                <option value="San Francisco">San Francisco</option>
+                                <option value="Chicago">Chicago</option>
+                                <option value="Remote">Remote</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Experience Level</label>
+                            <select id="filterExperience" class="w-full border rounded-md p-2">
+                                <option value="">All Levels</option>
+                                <option value="Entry Level">Entry Level</option>
+                                <option value="Mid Level">Mid Level</option>
+                                <option value="Senior Level">Senior Level</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <button onclick="applyFilters()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mr-2">Apply</button>
+                        <button onclick="resetFilters()" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100">Reset</button>
+                    </div>
+                </div>
+
+                <div id="jobs-container" class="grid grid-cols-1 gap-6">
+                    <!-- Jobs will be loaded here dynamically -->
+                </div>
+            </div>
+
+            <!-- Applications page -->
+            <div id="applications-page" class="hidden fade-in">
+                <h1 class="text-3xl font-bold text-gray-800 mb-8">My Applications</h1>
+                <div id="applications-container" class="grid grid-cols-1 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <p class="text-gray-600">No applications found. Please login to view your applications.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin page -->
+            <div id="admin-page" class="hidden fade-in">
+                <h1 class="text-3xl font-bold text-gray-800 mb-8">Admin Dashboard</h1>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <h2 class="text-xl font-semibold mb-4">Post New Job</h2>
+                        <form id="jobForm">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+                                <input type="text" id="jobTitle" class="w-full border rounded-md p-2" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Company</label>
+                                <input type="text" id="jobCompany" class="w-full border rounded-md p-2" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                                <input type="text" id="jobLocation" class="w-full border rounded-md p-2" required>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                                    <select id="jobType" class="w-full border rounded-md p-2" required>
+                                        <option value="Full-time">Full-time</option>
+                                        <option value="Part-time">Part-time</option>
+                                        <option value="Contract">Contract</option>
+                                        <option value="Internship">Internship</option>
+                                        <option value="Remote">Remote</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Experience</label>
+                                    <select id="jobExperience" class="w-full border rounded-md p-2" required>
+                                        <option value="Entry Level">Entry Level</option>
+                                        <option value="Mid Level">Mid Level</option>
+                                        <option value="Senior Level">Senior Level</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Salary Range</label>
+                                <input type="text" id="jobSalary" class="w-full border rounded-md p-2" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea id="jobDescription" class="w-full border rounded-md p-2 h-32" required></textarea>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Post Job</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <h2 class="text-xl font-semibold mb-4">Manage Jobs</h2>
+                        <div id="admin-jobs-container" class="space-y-4">
+                            <!-- Admin job listings will be loaded here -->
+                            <p class="text-gray-600">No jobs posted yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <h2 class="text-xl font-semibold mb-4">Applications Received</h2>
+                    <div id="admin-applications-container" class="space-y-4">
+                        <p class="text-gray-600">No applications received yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auth Modal -->
+        <div id="authModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg w-full max-w-md">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold" id="authModalTitle">Login</h3>
+                        <button onclick="toggleAuthModal()" class="text-gray-500 hover:text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div id="loginForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="loginEmail" class="w-full border rounded-md p-2" placeholder="you@example.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <input type="password" id="loginPassword" class="w-full border rounded-md p-2" placeholder="••••••••">
+                        </div>
+                        <button onclick="handleLogin()" class="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Log In</button>
+                        <div class="text-center text-sm">
+                            <span class="text-gray-600">Don't have an account?</span>
+                            <button onclick="toggleAuthForm()" class="text-blue-600 hover:underline ml-1">Sign up</button>
+                        </div>
+                    </div>
+
+                    <div id="signupForm" class="hidden space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <input type="text" id="signupName" class="w-full border rounded-md p-2" placeholder="John Doe">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="signupEmail" class="w-full border rounded-md p-2" placeholder="you@example.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <input type="password" id="signupPassword" class="w-full border rounded-md p-2" placeholder="••••••••">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                            <input type="password" id="signupConfirmPassword" class="w-full border rounded-md p-2" placeholder="••••••••">
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="isAdmin" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="isAdmin" class="ml-2 block text-sm text-gray-700">Register as Admin</label>
+                        </div>
+                        <button onclick="handleSignup()" class="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Sign Up</button>
+                        <div class="text-center text-sm">
+                            <span class="text-gray-600">Already have an account?</span>
+                            <button onclick="toggleAuthForm()" class="text-blue-600 hover:underline ml-1">Log in</button>
+                        </div>
+                    </div>
+
+                    <div id="uploadResume" class="hidden space-y-4">
+                        <div class="text-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <h4 class="font-medium text-lg mt-2">Upload Your Resume</h4>
+                            <p class="text-gray-500 text-sm">PDF, DOC, or DOCX (Max 5MB)</p>
+                        </div>
+                        <div class="mt-4">
+                            <input type="file" id="resumeFile" class="hidden" accept=".pdf,.doc,.docx">
+                            <button onclick="document.getElementById('resumeFile').click()" class="w-full py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50">Select File</button>
+                            <div id="fileName" class="text-sm text-gray-500 mt-1 text-center"></div>
+                        </div>
+                        <button onclick="submitApplication()" class="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Apply Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Application Modal -->
+        <div id="applicationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg w-full max-w-md">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold">Apply for <span id="applyJobTitle"></span></h3>
+                        <button onclick="closeApplicationModal()" class="text-gray-500 hover:text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <p id="applyJobCompany" class="text-gray-600 mb-6"></p>
+
+                    <form id="applicationForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <input type="text" id="applicantName" class="w-full border rounded-md p-2" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="applicantEmail" class="w-full border rounded-md p-2" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                            <input type="tel" id="applicantPhone" class="w-full border rounded-md p-2" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Cover Letter</label>
+                            <textarea id="applicantCoverLetter" class="w-full border rounded-md p-2 h-32" placeholder="Tell us why you're a good fit for this position" required></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Resume</label>
+                            <input type="file" id="resumeUpload" class="w-full border rounded-md p-2" accept=".pdf,.doc,.docx" required>
+                        </div>
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" onclick="closeApplicationModal()" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100">Cancel</button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Submit Application</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Modal -->
+        <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg w-full max-w-md">
+                <div class="p-6 text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <h3 class="text-xl font-bold mt-4" id="successTitle">Success!</h3>
+                    <p class="text-gray-600 mt-2" id="successMessage">Your action was completed successfully.</p>
+                    <button onclick="hideSuccessModal()" class="mt-6 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Current user state
+        let currentUser = null;
+        let currentJob = null;
+        let jobs = [];
+        let applications = [];
+        let filteredJobs = [];
+
+        // DOM Content Loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize the page
+            showPage('home');
+            
+            // Mock data for demonstration
+            fetchMockData();
+        });
+
+        // Mock data for demonstration
+        async function fetchMockData() {
+            // Simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            jobs = [
+                {
+                    id: '1',
+                    title: 'Frontend Developer',
+                    company: 'Tech Corp',
+                    location: 'San Francisco, CA',
+                    type: 'Full-time',
+                    experience: 'Mid Level',
+                    salary: '$90,000 - $120,000',
+                    description: 'We are looking for a skilled Frontend Developer to join our team. You will be responsible for building user interfaces using React.js and working with our design team to create beautiful, responsive web applications.',
+                    postedAt: '2023-06-15',
+                    applicants: []
+                },
+                {
+                    id: '2',
+                    title: 'Backend Engineer',
+                    company: 'Data Systems',
+                    location: 'Remote',
+                    type: 'Remote',
+                    experience: 'Senior Level',
+                    salary: '$110,000 - $150,000',
+                    description: 'Join our backend team to build scalable APIs and services. Experience with Node.js, MongoDB, and AWS required.',
+                    postedAt: '2023-06-10',
+                    applicants: []
+                },
+                {
+                    id: '3',
+                    title: 'UX Designer',
+                    company: 'Creative Minds',
+                    location: 'New York, NY',
+                    type: 'Full-time',
+                    experience: 'Mid Level',
+                    salary: '$80,000 - $100,000',
+                    description: 'We need a talented UX Designer to help us create intuitive and beautiful user experiences for our products. Portfolio required.',
+                    postedAt: '2023-06-05',
+                    applicants: []
+                },
+                {
+                    id: '4',
+                    title: 'DevOps Engineer',
+                    company: 'Cloud Solutions',
+                    location: 'Chicago, IL',
+                    type: 'Contract',
+                    experience: 'Senior Level',
+                    salary: '$70 - $100 per hour',
+                    description: 'Looking for a DevOps expert to help us migrate our infrastructure to Kubernetes and improve our CI/CD pipelines.',
+                    postedAt: '2023-06-01',
+                    applicants: []
+                },
+                {
+                    id: '5',
+                    title: 'Marketing Intern',
+                    company: 'Digital Boost',
+                    location: 'Remote',
+                    type: 'Internship',
+                    experience: 'Entry Level',
+                    salary: '$20 - $25 per hour',
+                    description: 'Great opportunity for marketing students to gain real-world experience in digital marketing and social media management.',
+                    postedAt: '2023-05-28',
+                    applicants: []
+                }
+            ];
+
+            filteredJobs = [...jobs];
+            renderJobs();
+        }
+
+        // Page navigation
+        function showPage(page) {
+            // Hide all pages
+            document.getElementById('home-page').classList.add('hidden');
+            document.getElementById('jobs-page').classList.add('hidden');
+            document.getElementById('applications-page').classList.add('hidden');
+            document.getElementById('admin-page').classList.add('hidden');
+            
+            // Show the selected page
+            document.getElementById(`${page}-page`).classList.remove('hidden');
+            document.getElementById(`${page}-page`).classList.add('fade-in');
+            
+            // Load data if needed
+            if (page === 'jobs') {
+                fetchJobs();
+            } else if (page === 'applications') {
+                fetchApplications();
+            } else if (page === 'admin') {
+                fetchAdminJobs();
+            }
+        }
+
+        // Job filtering
+        function toggleJobFilter() {
+            const filter = document.getElementById('jobFilter');
+            filter.classList.toggle('hidden');
+        }
+
+        function applyFilters() {
+            const type = document.getElementById('filterType').value;
+            const location = document.getElementById('filterLocation').value;
+            const experience = document.getElementById('filterExperience').value;
+            const search = document.getElementById('jobSearch').value.toLowerCase();
+            
+            filteredJobs = jobs.filter(job => {
+                let matches = true;
+                
+                if (type && job.type !== type) matches = false;
+                if (location && job.location !== location) matches = false;
+                if (experience && job.experience !== experience) matches = false;
+                if (search && !job.title.toLowerCase().includes(search) && !job.company.toLowerCase().includes(search)) matches = false;
+                
+                return matches;
+            });
+            
+            renderJobs();
+        }
+
+        function resetFilters() {
+            document.getElementById('filterType').value = '';
+            document.getElementById('filterLocation').value = '';
+            document.getElementById('filterExperience').value = '';
+            document.getElementById('jobSearch').value = '';
+            
+            filteredJobs = [...jobs];
+            renderJobs();
+        }
+
+        // Job rendering
+        function fetchJobs() {
+            applyFilters();
+        }
+
+        function renderJobs() {
+            const container = document.getElementById('jobs-container');
+            container.innerHTML = '';
+            
+            if (filteredJobs.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <p class="text-gray-600">No jobs found matching your criteria.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            filteredJobs.forEach(job => {
+                const jobEl = document.createElement('div');
+                jobEl.className = 'bg-white p-6 rounded-lg shadow-sm border card-hover';
+                jobEl.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">${job.title}</h3>
+                            <p class="text-gray-600">${job.company} • ${job.location}</p>
+                        </div>
+                        <div class="bg-gray-100 text-gray-800 text-sm px-2 py-1 rounded">
+                            ${job.type}
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-gray-700 mb-2"><span class="font-semibold">Experience:</span> ${job.experience}</p>
+                        <p class="text-gray-700 mb-2"><span class="font-semibold">Salary:</span> ${job.salary}</p>
+                        <p class="text-gray-600 mt-3">${job.description}</p>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
+                        <span class="text-sm text-gray-500">Posted ${formatDate(job.postedAt)}</span>
+                        <button onclick="openApplicationModal('${job.id}')" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Apply Now</button>
+                    </div>
+                `;
+                container.appendChild(jobEl);
+            });
+        }
+
+        // Application modal
+        function openApplicationModal(jobId) {
+            const job = jobs.find(j => j.id === jobId);
+            if (!job) return;
+            
+            currentJob = job;
+            document.getElementById('applyJobTitle').textContent = job.title;
+            document.getElementById('applyJobCompany').textContent = `${job.company} • ${job.location} • ${job.type}`;
+            
+            if (currentUser) {
+                // Pre-fill user details
+                document.getElementById('applicantName').value = currentUser.name;
+                document.getElementById('applicantEmail').value = currentUser.email;
+                document.getElementById('applicantPhone').value = currentUser.phone || '';
+                
+                // Show upload form only
+                document.getElementById('applicationForm').classList.add('hidden');
+                document.getElementById('uploadResume').classList.remove('hidden');
+                document.getElementById('authModalTitle').textContent = `Apply for ${job.title}`;
+                
+                // Initially hide the login/signup forms
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('signupForm').classList.add('hidden');
+                
+                toggleAuthModal();
+            } else {
+                // Show full application form
+                document.getElementById('applicationModal').classList.remove('hidden');
+            }
+        }
+
+        function closeApplicationModal() {
+            document.getElementById('applicationModal').classList.add('hidden');
+            document.getElementById('applicationForm').reset();
+        }
+
+        function submitApplication() {
+            if (!currentJob) return;
+            
+            const form = document.getElementById('applicationForm');
+            const formData = new FormData(form);
+            
+            // In a real app, we would send this to the server
+            const application = {
+                jobId: currentJob.id,
+                jobTitle: currentJob.title,
+                company: currentJob.company,
+                applicantName: formData.get('applicantName'),
+                applicantEmail: formData.get('applicantEmail'),
+                applicantPhone: formData.get('applicantPhone'),
+                coverLetter: formData.get('applicantCoverLetter'),
+                resume: formData.get('resumeUpload').name,
+                appliedAt: new Date().toISOString(),
+                status: 'Pending'
+            };
+            
+            // Add to applications
+            applications.push(application);
+            
+            // Also add to job's applicants
+            const job = jobs.find(j => j.id === currentJob.id);
+            if (job) {
+                job.applicants.push(application);
+            }
+            
+            // Show success
+            showSuccess('Application Submitted', 'Your application has been submitted successfully!');
+            
+            // Close modals
+            closeApplicationModal();
+            if (document.getElementById('authModal').classList.contains('hidden') === false) {
+                toggleAuthModal();
+            }
+            
+            // Update applications view
+            fetchApplications();
+        }
+
+        // Applications management
+        function fetchApplications() {
+            if (!currentUser) return;
+            
+            const container = document.getElementById('applications-container');
+            const userApps = applications.filter(app => app.applicantEmail === currentUser.email);
+            
+            container.innerHTML = '';
+            
+            if (userApps.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <p class="text-gray-600">You haven't applied to any jobs yet.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            userApps.forEach(app => {
+                const appEl = document.createElement('div');
+                appEl.className = 'bg-white p-6 rounded-lg shadow-sm border';
+                appEl.innerHTML = `
+                    <div class="flex justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">${app.jobTitle}</h3>
+                            <p class="text-gray-600">${app.company}</p>
+                        </div>
+                        <div class="text-sm">
+                            <span class="px-2 py-1 rounded ${getStatusClass(app.status)}">${app.status}</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-gray-700">
+                        <p><span class="font-semibold">Applied on:</span> ${formatDate(app.appliedAt)}</p>
+                        <p class="mt-2"><span class="font-semibold">Cover Letter:</span> ${truncate(app.coverLetter, 100)}</p>
+                    </div>
+                `;
+                container.appendChild(appEl);
+            });
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'Pending': return 'bg-yellow-100 text-yellow-800';
+                case 'Reviewed': return 'bg-blue-100 text-blue-800';
+                case 'Interview': return 'bg-purple-100 text-purple-800';
+                case 'Hired': return 'bg-green-100 text-green-800';
+                case 'Rejected': return 'bg-red-100 text-red-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        // Admin functions
+        function fetchAdminJobs() {
+            if (!currentUser || !currentUser.isAdmin) return;
+            
+            const container = document.getElementById('admin-jobs-container');
+            container.innerHTML = '';
+            
+            if (jobs.length === 0) {
+                container.innerHTML = '<p class="text-gray-600">No jobs posted yet.</p>';
+                return;
+            }
+            
+            jobs.forEach(job => {
+                const jobEl = document.createElement('div');
+                jobEl.className = 'bg-gray-50 p-4 rounded-lg border';
+                jobEl.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-semibold">${job.title}</h4>
+                            <p class="text-sm text-gray-600">${job.company} • ${job.location}</p>
+                            <p class="text-xs text-gray-500 mt-1">Posted ${formatDate(job.postedAt)}</p>
+                        </div>
+                        <div>
+                            <button onclick="deleteJob('${job.id}')" class="text-red-600 hover:text-red-800 text-sm">Delete</button>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">${job.applicants.length} applicant${job.applicants.length !== 1 ? 's' : ''}</span>
+                    </div>
+                `;
+                container.appendChild(jobEl);
+            });
+            
+            // Also show applications for admin
+            const appContainer = document.getElementById('admin-applications-container');
+            const allApps = jobs.flatMap(job => job.applicants);
+            
+            if (allApps.length === 0) {
+                appContainer.innerHTML = '<p class="text-gray-600">No applications received yet.</p>';
+                return;
+            }
+            
+            allApps.forEach(app => {
+                const appEl = document.createElement('div');
+                appEl.className = 'bg-gray-50 p-4 rounded-lg border';
+                appEl.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-semibold">${app.applicantName}</h4>
+                            <p class="text-sm text-gray-600">${app.jobTitle} at ${app.company}</p>
+                            <p class="text-xs text-gray-500 mt-1">Applied ${formatDate(app.appliedAt)}</p>
+                        </div>
+                        <div>
+                            <span class="text-xs ${getStatusClass(app.status)} px-2 py-1 rounded">${app.status}</span>
+                        </div>
+                    </div>
+                    <div class="mt-2 flex space-x-2">
+                        <button onclick="updateApplicationStatus('${app.jobId}', '${app.applicantEmail}', 'Reviewed')" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200">Review</button>
+                        <button onclick="updateApplicationStatus('${app.jobId}', '${app.applicantEmail}', 'Interview')" class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded hover:bg-purple-200">Interview</button>
+                        <button onclick="updateApplicationStatus('${app.jobId}', '${app.applicantEmail}', 'Hired')" class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200">Hire</button>
+                        <button onclick="updateApplicationStatus('${app.jobId}', '${app.applicantEmail}', 'Rejected')" class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded hover:bg-red-200">Reject</button>
+                    </div>
+                `;
+                appContainer.appendChild(appEl);
+            });
+        }
+
+        function postJob() {
+            const title = document.getElementById('jobTitle').value;
+            const company = document.getElementById('jobCompany').value;
+            const location = document.getElementById('jobLocation').value;
+            const type = document.getElementById('jobType').value;
+            const experience = document.getElementById('jobExperience').value;
+            const salary = document.getElementById('jobSalary').value;
+            const description = document.getElementById('jobDescription').value;
+            
+            if (!title || !company || !location || !type || !experience || !salary || !description) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            const newJob = {
+                id: Date.now().toString(),
+                title,
+                company,
+                location,
+                type,
+                experience,
+                salary,
+                description,
+                postedAt: new Date().toISOString(),
+                applicants: []
+            };
+            
+            jobs.push(newJob);
+            filteredJobs = [...jobs];
+            
+            // Reset form
+            document.getElementById('jobForm').reset();
+            
+            // Update UI
+            renderJobs();
+            fetchAdminJobs();
+            
+            showSuccess('Job Posted', 'The job has been posted successfully!');
+        }
+
+        function deleteJob(jobId) {
+            if (!confirm('Are you sure you want to delete this job posting?')) return;
+            
+            jobs = jobs.filter(job => job.id !== jobId);
+            filteredJobs = filteredJobs.filter(job => job.id !== jobId);
+            
+            // Update UI
+            renderJobs();
+            fetchAdminJobs();
+            
+            showSuccess('Job Deleted', 'The job has been deleted successfully.');
+        }
+
+        function updateApplicationStatus(jobId, applicantEmail, status) {
+            // Find the job
+            const job = jobs.find(j => j.id === jobId);
+            if (!job) return;
+            
+            // Find the application
+            const application = job.applicants.find(a => a.applicantEmail === applicantEmail);
+            if (!application) return;
+            
+            // Update status
+            application.status = status;
+            
+            // Also update in the applications array
+            const globalApp = applications.find(a => 
+                a.jobId === jobId && a.applicantEmail === applicantEmail
+            );
+            if (globalApp) {
+                globalApp.status = status;
+            }
+            
+            // Update UI
+            fetchAdminJobs();
+        }
+
+        // Auth functions
+        function toggleAuthModal(isSignup = false) {
+            const modal = document.getElementById('authModal');
+            modal.classList.toggle('hidden');
+            
+            // Reset forms
+            document.getElementById('loginForm').reset();
+            document.getElementById('signupForm').reset();
+            document.getElementById('uploadResume').classList.add('hidden');
+            document.getElementById('fileName').textContent = '';
+            
+            if (modal.classList.contains('hidden')) return;
+            
+            // Show appropriate form
+            if (isSignup) {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('signupForm').classList.remove('hidden');
+                document.getElementById('authModalTitle').textContent = 'Sign Up';
+            } else if (currentUser && currentJob) {
+                // Show upload resume for applying to job
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('signupForm').classList.add('hidden');
+                document.getElementById('uploadResume').classList.remove('hidden');
+                document.getElementById('authModalTitle').textContent = `Apply for ${currentJob.title}`;
+            } else {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('signupForm').classList.add('hidden');
+                document.getElementById('authModalTitle').textContent = 'Login';
+            }
+        }
+
+        function toggleAuthForm() {
+            document.getElementById('loginForm').classList.toggle('hidden');
+            document.getElementById('signupForm').classList.toggle('hidden');
+            document.getElementById('authModalTitle').textContent = 
+                document.getElementById('loginForm').classList.contains('hidden') ? 'Sign Up' : 'Login';
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                alert('Please enter email and password');
+                return;
+            }
+            
+            // In a real app, verify against server
+            currentUser = {
+                email,
+                name: 'John Doe', // Normally this would come from the server
+                isAdmin: email === 'admin@example.com',
+                phone: '123-456-7890'
+            };
+            
+            updateAuthUI();
+            toggleAuthModal();
+            fetchApplications();
+            
+            if (currentJob) {
+                // If they were trying to apply to a job, show application form
+                openApplicationModal(currentJob.id);
+                if (currentUser) {
+                    // After login, show upload resume directly
+                    document.getElementById('applicationForm').classList.add('hidden');
+                    document.getElementById('uploadResume').classList.remove('hidden');
+                }
+            }
+            
+            showSuccess('Logged In', 'You have successfully logged in!');
+        }
+
+        function handleSignup() {
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            const isAdmin = document.getElementById('isAdmin').checked;
+            
+            if (!name || !email || !password || !confirmPassword) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            // In a real app, send to server to create account
+            currentUser = {
+                name,
+                email,
+                isAdmin,
+                phone: ''
+            };
+            
+            updateAuthUI();
+            toggleAuthModal();
+            
+            showSuccess('Account Created', 'Your account has been created successfully!');
+        }
+
+        function logout() {
+            currentUser = null;
+            updateAuthUI();
+            showPage('home');
+            
+            showSuccess('Logged Out', 'You have been logged out successfully.');
+        }
+
+        function updateAuthUI() {
+            const authButton = document.getElementById('authButton');
+            const adminButton = document.getElementById('adminButton');
+            
+            if (currentUser) {
+                authButton.textContent = 'Logout';
+                authButton.onclick = logout;
+                authButton.className = 'px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700';
+                
+                if (currentUser.isAdmin) {
+                    adminButton.classList.remove('hidden');
+                } else {
+                    adminButton.classList.add('hidden');
+                }
+            } else {
+                authButton.textContent = 'Login';
+                authButton.onclick = toggleAuthModal;
+                authButton.className = 'px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700';
+                adminButton.classList.add('hidden');
+            }
+        }
+
+        // Resume upload
+        function handleResumeUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Validate file
+            const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!validTypes.includes(file.type)) {
+                alert('Please upload a PDF or Word document');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                return;
+            }
+            
+            document.getElementById('fileName').textContent = file.name;
+        }
+
+        // Success modal
+        function showSuccess(title, message) {
+            document.getElementById('successTitle').textContent = title;
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+
+        function hideSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+        }
+
+        // Utility functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function truncate(text, length) {
+            if (text.length <= length) return text;
+            return text.substring(0, length) + '...';
+        }
+
+        // Event listeners
+        document.getElementById('jobForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            postJob();
+        });
+
+        document.getElementById('applicationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitApplication();
+        });
+
+        document.getElementById('resumeFile').addEventListener('change', handleResumeUpload);
+        document.getElementById('resumeUpload').addEventListener('change', handleResumeUpload);
+    </script>
+</body>
+</html>
